@@ -1,14 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-export default function setting() {
+export default function calcularCosto() {
   return (
     <View>
-      <Text>setting</Text>
+      <Text>calcularCosto</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({})
-
-
