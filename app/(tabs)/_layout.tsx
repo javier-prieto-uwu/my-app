@@ -1,4 +1,4 @@
-import { FontAwesome } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { StyleSheet } from "react-native";
@@ -10,20 +10,25 @@ export default function TabLayout() {
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: "#00e676",
         tabBarInactiveTintColor: "#a0a0a0",
-        tabBarLabelStyle: styles.tabBarLabel,
         tabBarIconStyle: styles.tabBarIcon,
         headerStyle: styles.header,
         headerTitleAlign: "left",
         headerTitleContainerStyle: styles.headerTitleContainer,
+        tabBarShowLabel: false,
+        tabBarItemStyle: styles.tabBarItem,
+        tabBarAllowFontScaling: true,
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
           headerShown: false,
-          tabBarLabel: "Inicio",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={20} name="home" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              size={28}
+              name={focused ? "home-variant" : "home-variant-outline"}
+              color={color}
+            />
           ),
         }}
       />
@@ -32,10 +37,12 @@ export default function TabLayout() {
         name="calcularCosto"
         options={{
           headerShown: false,
-          tabBarLabel: "Calculadora",
-
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={20} name="calculator" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              size={28}
+              name={focused ? "calculator-variant" : "calculator-variant-outline"}
+              color={color}
+            />
           ),
         }}
       />
@@ -44,10 +51,12 @@ export default function TabLayout() {
         name="agregarM"
         options={{
           headerShown: false,
-          tabBarLabel: "Agregar",
-
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={20} name="plus" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              size={28}
+              name={focused ? "plus-box" : "plus-box-outline"}
+              color={color}
+            />
           ),
         }}
       />
@@ -56,10 +65,12 @@ export default function TabLayout() {
         name="inventario"
         options={{
           headerShown: false,
-          tabBarLabel: "Inventario",
-
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={20} name="archive" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              size={28}
+              name={focused ? "archive" : "archive-outline"}
+              color={color}
+            />
           ),
         }}
       />
@@ -68,10 +79,12 @@ export default function TabLayout() {
         name="menu"
         options={{
           headerShown: false,
-          tabBarLabel: "Menú",
-
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={20} name="bars" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              size={28}
+              name={focused ? "menu" : "menu"}
+              color={color}
+            />
           ),
         }}
       />
@@ -81,25 +94,36 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: "#0d0d0d",
-    height: 60,
-    borderTopWidth: 0,
-    paddingTop: 5,
-  },
-  tabBarLabel: {
-    fontSize: 12,
-    fontFamily: "Poppins",
-    fontWeight: "500",
-    marginBottom: 5,
+    backgroundColor: "#181818",
+    height: 70,
+    paddingTop: 6,
+    paddingBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 10,
+    borderTopColor: '#222',
   },
   tabBarIcon: {
-    marginBottom: -3,
+    marginBottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0,
+  },
+  tabBarItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    paddingVertical: 0,
   },
   header: {
     backgroundColor: "#0d0d0d",
     elevation: 0,
     shadowOpacity: 0,
     borderBottomWidth: 0,
+    borderBottomColor: '#222',
   },
   headerTitleContainer: {
     flex: 1,

@@ -1,5 +1,6 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Datos de prueba en formato JSON
 const materialesmap = [
@@ -54,6 +55,7 @@ const materialesmap = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   return (
     <ScrollView style={styles.contenedorP}>
       {/* Encabezado */}
@@ -74,6 +76,16 @@ export default function Home() {
       {/* Lista de materiales */}
       <View style={styles.materialsContainer}>
         <Text style={styles.sectionTitle}>Materiales disponibles</Text>
+
+
+
+        <Pressable onPress={() => router.push('/agregarM')}>
+          <Text style={styles.registrarMaterial}>
+            +Registrar nuevo material
+          </Text>
+        </Pressable>
+
+
 
         {materialesmap.map((material) => (
           <View key={material.id} style={styles.materialItem}>
@@ -106,7 +118,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   contenedorP: {
-    backgroundColor: 'black',
+    backgroundColor: '#0d0d0d',
     flex: 1,
     padding: 16,
   },
@@ -125,10 +137,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   quoteContainer: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#181818',
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#222',
   },
   quoteLabel: {
     color: '#a0a0a0',
@@ -160,12 +174,19 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   materialItem: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#181818',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#222',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   imageContainer: {
     marginRight: 12,
@@ -174,6 +195,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333',
   },
   infoContainer: {
     flex: 1,
@@ -210,5 +233,12 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginLeft: 8,
     textAlign: 'right',
+  },
+  registrarMaterial: {
+    color: '#00e676',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'left',
   },
 });

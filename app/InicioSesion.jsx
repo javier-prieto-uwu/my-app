@@ -1,232 +1,300 @@
-import { useRouter } from "expo-router";
-import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {
-  GestureHandlerRootView,
-  ScrollView,
-  TextInput,
-} from "react-native-gesture-handler";
-import PiePagina2 from "./Componentes/index/PiePagina2";
+import React, { useState } from 'react';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  TextInput, 
+  TouchableOpacity, 
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function Index() {
-  //estados
-  const [user, setUser] = React.useState("");
-  const [pw, setPw] = React.useState("");
-
+export default function InicioSesion() {
   const router = useRouter();
+  const { loginWithEmail, loginWithGoogle } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const login = () => {
-    if (user == "" || pw == "") {
-      alert("Favor de llenar los campos");
-    } else {
-      if (user == "admin" && pw == "123") {
-        router.push("/(tabs)/home");
-      } else {
-        alert("Credenciales incorrectas");
-      }
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Por favor completa todos los campos');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await loginWithEmail(email, password);
+      // La navegación se maneja automáticamente en el contexto
+    } catch (error) {
+      Alert.alert('Error de inicio de sesión', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      // La navegación se maneja automáticamente en el contexto
+    } catch (error) {
+      Alert.alert('Error de inicio de sesión', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Por favor ingresa tu correo electrónico');
+      return;
+    }
+
+    try {
+      await authService.resetPassword(email);
+      Alert.alert(
+        'Correo enviado', 
+        'Se ha enviado un enlace para restablecer tu contraseña a tu correo electrónico'
+      );
+    } catch (error) {
+      Alert.alert('Error', error.message);
     }
   };
 
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Logo con sombra */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={{
-              uri: "https://www.mexicomakers.com.mx/cdn/shop/files/PLABlack.jpg?v=1740682017",
-            }}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Bienvenido de vuelta</Text>
+          <Text style={styles.subtitle}>Inicia sesión en tu cuenta</Text>
         </View>
 
-        {/* Título */}
-        <Text style={styles.titulo}>
-          Iniciar Sesión
-        </Text>
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Correo electrónico</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="tu@email.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
-        {/* Campos de formulario */}
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>Usuario</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresa tu usuario"
-            placeholderTextColor="#a0a0a0"
-            onChangeText={setUser}
-            autoCapitalize="none"
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Contraseña</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Tu contraseña"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity 
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <Text style={styles.label}>Contraseña</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresa tu contraseña"
-            placeholderTextColor="#a0a0a0"
-            secureTextEntry
-            onChangeText={setPw}
-          />
-        </View>
-
-        {/* Botones principales */}
-        <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            onPress={login} 
-            style={styles.primaryButton}
-            activeOpacity={0.8}
+            style={styles.forgotPassword}
+            onPress={handleForgotPassword}
           >
-            <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
+            <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => router.push("/CrearCuenta")}
-            style={[styles.primaryButton, styles.secondaryButton]}
-            activeOpacity={0.8}
+          <TouchableOpacity 
+            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+            onPress={handleLogin}
+            disabled={loading}
           >
-            <Text style={[styles.buttonText, styles.secondaryButtonText]}>CREAR CUENTA</Text>
+            {loading ? (
+              <ActivityIndicator color="#000" />
+            ) : (
+              <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>o</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <TouchableOpacity 
+            style={[styles.googleButton, loading && styles.googleButtonDisabled]}
+            onPress={handleGoogleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.googleIcon}>🔍</Text>
+            <Text style={styles.googleButtonText}>Continuar con Google</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Separador */}
-        <View style={styles.separatorContainer}>
-          <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>o continuar con</Text>
-          <View style={styles.separatorLine} />
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
+          <TouchableOpacity onPress={() => router.push('/CrearCuenta')}>
+            <Text style={styles.footerLink}>Regístrate aquí</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Botón de Google */}
-        <TouchableOpacity style={styles.googleButton} activeOpacity={0.8}>
-          <Text style={styles.googleIcon}>G</Text>
-        </TouchableOpacity>
-
-        {/* Pie de página */}
-        <PiePagina2 />
       </ScrollView>
-    </GestureHandlerRootView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
+  container: {
     flex: 1,
     backgroundColor: '#0d0d0d',
   },
-  container: {
+  scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#0d0d0d',
+    padding: 20,
   },
-  logoContainer: {
-    shadowColor: '#00e676',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    marginBottom: 30,
-    alignSelf: 'center',
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
   },
-  logo: {
-    width: 180,
-    height: 180,
-    borderRadius: 30,
-  },
-  titulo: {
+  title: {
     color: 'white',
     fontSize: 28,
-    fontFamily: 'Poppins',
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 30,
-    letterSpacing: 0.5,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  formContainer: {
-    width: '100%',
+  subtitle: {
+    color: '#a0a0a0',
+    fontSize: 16,
+  },
+  form: {
     marginBottom: 30,
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   label: {
     color: 'white',
     fontSize: 16,
-    fontFamily: 'Poppins',
-    fontWeight: '500',
     marginBottom: 8,
-    marginLeft: 4,
+    fontWeight: '500',
   },
   input: {
-    backgroundColor: '#1a1a1a',
-    color: 'white',
-    fontSize: 16,
+    backgroundColor: '#181818',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 20,
+    fontSize: 16,
+    color: 'white',
     borderWidth: 1,
     borderColor: '#333',
-    fontFamily: 'Poppins',
   },
-  buttonContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  primaryButton: {
-    backgroundColor: '#00e676',
-    borderRadius: 30,
-    paddingVertical: 16,
-    marginVertical: 10,
-    width: '100%',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#00e676',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#00e676',
-  },
-  buttonText: {
-    color: 'black',
-    fontWeight: '600',
-    fontSize: 16,
-    fontFamily: 'Poppins',
-    letterSpacing: 0.5,
-  },
-  secondaryButtonText: {
-    color: '#00e676',
-  },
-  separatorContainer: {
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 30,
-    width: '100%',
+    backgroundColor: '#181818',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  separatorLine: {
+  passwordInput: {
+    flex: 1,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+  },
+  eyeButton: {
+    padding: 16,
+  },
+  eyeIcon: {
+    fontSize: 20,
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    color: '#00e676',
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: '#00e676',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
+  loginButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
     flex: 1,
     height: 1,
     backgroundColor: '#333',
   },
-  separatorText: {
+  dividerText: {
     color: '#a0a0a0',
+    marginHorizontal: 16,
     fontSize: 14,
-    fontFamily: 'Poppins',
-    marginHorizontal: 10,
   },
   googleButton: {
-    backgroundColor: '#1a1a1a',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
+    backgroundColor: '#181818',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'center',
-    marginBottom: 40,
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#333',
-    elevation: 3,
+  },
+  googleButtonDisabled: {
+    opacity: 0.6,
   },
   googleIcon: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    marginRight: 12,
+  },
+  googleButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#a0a0a0',
+    fontSize: 14,
+  },
+  footerLink: {
     color: '#00e676',
-    fontFamily: 'Poppins',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
